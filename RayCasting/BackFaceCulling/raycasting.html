@@ -1,0 +1,224 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <title>Camara Ortografica</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+      <script src="js/renderers/Projector.js"></script>
+    <script src='js/libs/dat.gui.min.js'></script>
+      
+    <script>
+        
+     
+	var	cubes,	geom,	mouseVector;
+		var scene, aspect, camera, camera2, renderer, controls;
+        var mapWidth = 320, mapHeight = 240;
+        var w = window.innerWidth, h = window.innerHeight;
+        var frustumSize = 5;
+        var range = 150;
+		var startTime = Date.now();
+        var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+		
+		init();
+		animate();
+	
+		function init(){
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x000000 );
+			aspect = window.innerWidth / window.innerHeight;
+			camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
+			camera2 = new THREE.PerspectiveCamera( 45, 1.33, 0.1, 100);
+            camera3 = new THREE.OrthographicCamera( 50,-70, -50, 50, 0.1);
+            var helper = new THREE.CameraHelper( camera2 );
+            var helper2 = new THREE.CameraHelper( camera3 );
+          
+            scene.add( helper );
+              scene.add( helper2 );
+			renderer = new THREE.WebGLRenderer({antialias: true});
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+            
+			var vector = new THREE.Vector3();
+			camera2.getWorldDirection( vector );
+			console.log(vector);
+			
+			var size = 10;
+			var arrowSize = 1;
+			var divisions = size;
+			var origin = new THREE.Vector3( 0, 0, 0 );
+			var x = new THREE.Vector3( 1, 0, 0 );
+			var y = new THREE.Vector3( 0, 1, 0 );
+		  	var z = new THREE.Vector3( 0, 0, 1 );
+			var color1 = new THREE.Color( 0xFFFFFF );
+		  	var color2 = new THREE.Color( 0x333333 );
+		  	var colorR = new THREE.Color( 0xAA3333 );
+		  	var colorG = new THREE.Color( 0x33AA33 );
+		  	var colorB = new THREE.Color( 0x333366 );
+		  
+		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
+		  	var axesHelper = new THREE.AxesHelper( size );
+		  	var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
+		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
+		  	var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
+            
+            //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
+            gridHelperXY.rotateOnWorldAxis ( x, THREE.Math.degToRad(90) );
+            gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+            gridHelperYZ.rotateOnWorldAxis ( z, THREE.Math.degToRad(90) );
+            
+            //CREAR LAS FLECHAS QUE INDICAN LOS EJES DE COORDENADAS 3D
+            var arrowX = new THREE.ArrowHelper( x, origin, arrowSize, colorR );
+            var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
+            var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
+            
+            //CREAR ILUMINACIÓN
+            var ambient = new THREE.AmbientLight( 0xffffff, 1 );
+            scene.add( ambient );
+            
+            var pointLight = new THREE.PointLight( 0xffffff, 4, 200 );
+            pointLight.position.set( 5, 5, -5 );
+           scene.add( pointLight );
+            				
+            //CREAR LOS MATERIALES
+            var material1 = new THREE.MeshStandardMaterial( { color: 0xAA3333, metalness: 0.5, roughness: 0.1 } );
+            var material2 = new THREE.MeshStandardMaterial( { color: 0x33AA33, metalness: 0.5, roughness: 0.1 } );
+            var material3 = new THREE.MeshStandardMaterial( { color: 0x3333AA, metalness: 0.5, roughness: 0.1 } );
+			
+			//CREAR LOS OBJETOS
+            scene.add( arrowX );
+            scene.add( arrowY );
+            scene.add( arrowZ );
+            
+            var geom = new THREE.OctahedronGeometry( 3,0  );
+            var meshMaterial = new THREE.MeshStandardMaterial( {color: 0x00ff00} );
+					
+			var sphere = new THREE.Mesh( geom, meshMaterial );
+             sphere.translateZ(-15);
+                       		
+			for(var i=0; i<sphere.geometry.faces.length; i++){
+				if(vector.dot(sphere.geometry.faces[i].normal)>0){
+					 sphere.geometry.faces.splice(i,4);
+                    sphere.geometry.elementsNeedUpdate=true;
+                    //sphere.geometry.faces[i].color = new THREE.Color( 0xff0000 );
+				}
+				//console.log(sphere.geometry.faces);
+			}			
+						
+				//var geom = new THREE.CubeGeometry( 5, 5, 5 );
+            
+            var material = new THREE.MeshLambertMaterial();
+          
+            	var group = new THREE.Group();
+			
+
+	cubes = new THREE.Object3D();
+	      
+	for(var i = 0; i < 200; i++ ) {
+       
+        cube = new THREE.Mesh( geom,  material.clone() );
+		cube.material.color.set( colorG );
+cube.material.colorWrite = false; // <================= new	
+        cube.renderOrder = 1;
+
+	
+		cube.position.set( range * (0.5 - Math.random()), 100 * (0.5 - Math.random()), 200 * (0.5 - Math.random()) );
+		
+
+		   cubes.add( cube );
+        					
+			var sphere = new THREE.Mesh( geom, meshMaterial );
+        	}			
+		
+     
+            
+            var raycaster = new THREE.Raycaster();
+            projector = new THREE.Projector();
+mouseVector = new THREE.Vector3();
+        window.addEventListener( 'mousemove', onMouseMove, false );
+            
+           function onMouseMove( e ) {
+	
+               //for( var a = -1.00; a < 1.00; a +=0.1 ) {
+           //  for( var b = 1.00; b < -1.00; b +=0.1 ) {
+             //    console.log(a);
+               //  console.log(b);
+    	mouseVector.x =   2*(e.clientX / innerWidth) - 1;
+		mouseVector.y =1-2*( e.clientY / innerHeight );
+            
+				console.log(mouseVector);
+                 
+		raycaster.setFromCamera( mouseVector.clone(), camera2 );
+			intersects = raycaster.intersectObjects( cubes.children );
+            //intersects = raycaster.intersectObject( sphere, false );
+  
+               for( var i = 0; i < intersects.length; i++ ) {
+			var intersection = intersects[ i ];
+				obj = intersection.object;
+console.log(intersects[i]);
+			//obj.material.color.setRGB( 1.0 - i / intersects.length, 0, 0 );
+                   obj.material.colorWrite = true; // 
+                   
+		}
+
+	}
+         //}
+           //}
+	
+            group.add(sphere);
+			group.add(cubes);
+            group.add(cube);
+			scene.add( group );
+						
+			camera.position.x = 100;
+			camera.position.y = 150;
+		  	camera.position.z = 150;
+            
+		
+		  	camera.lookAt( origin );
+           
+
+		}
+        
+        
+		function animate() {
+			requestAnimationFrame( animate );
+			controls.update(); // required if controls.enableDamping = true, or if controls.autoRotate = true
+			render();
+		}
+        function render() {
+          
+          // camera3.rotation.y += 0.005;
+            renderer.setViewport( 0, 0, w, h );
+            renderer.setScissor( 0, 0, w, h );
+            renderer.render( scene, camera );
+            renderer.setViewport( 10, 10, mapWidth, mapHeight );
+           renderer.setScissor( 10, 10, mapWidth, mapHeight );
+            renderer.setScissorTest( true );
+  
+          renderer.render( scene, camera3 );
+          camera3.position.x = 100;
+             camera3.position.z = -50;
+          camera3.rotation.y = (Math.PI/2);
+           renderer.setViewport( 10, 400, mapWidth, mapHeight );
+            renderer.setScissor( 10, 400, mapWidth, mapHeight );
+            renderer.setScissorTest( true );
+            renderer.render( scene, camera2 );
+		}
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+

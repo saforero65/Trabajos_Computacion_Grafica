@@ -1,0 +1,232 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <title>Proyeccion Ortografica</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+          <script src="js/dat.gui.min.js"></script>
+          <script src="js/RectAreaLightUniformsLib.js"></script>
+      
+    <script>
+		var scene, aspect, camera, renderer, controls;
+		var startTime = Date.now();			
+		var geometry;  
+        var clock = new THREE.Clock();
+       var lightHelper1, lightHelper2, lightHelper3;
+        
+		init();
+		animate();
+	
+		function init(){
+			//INICIALIZACIÓN DE LA ESCENA
+            renderer = new THREE.WebGLRenderer( { antialias: true } );
+			scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0x000000 );
+			aspect = window.innerWidth / window.innerHeight;
+			camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+            controls = new THREE.OrbitControls( camera, renderer.domElement );
+       
+	spotLight = new THREE.SpotLight( 0xffffff, 40 );
+				spotLight.position.set( 150, 400, 75 );
+				spotLight.angle = Math.PI / 4;
+				spotLight.penumbra = 0.1;
+				spotLight.decay = 2;
+				spotLight.distance = 500;
+
+scene.add( spotLight );
+				lightHelper = new THREE.SpotLightHelper( spotLight );
+				scene.add( lightHelper );
+
+		var ambient = new THREE.AmbientLight( 0xffffff, 0.1 );
+				scene.add( ambient );
+
+//CREAR LOS MATERIALES
+     var material = new THREE.MeshPhongMaterial( { color: 0x808080, dithering: true } );
+       var material1 = new THREE.MeshStandardMaterial( { color: 0xAA3333, metalness: 0.5, roughness: 0.1 } );
+            var material2 = new THREE.MeshStandardMaterial( { color: 0x33AA33, metalness: 0.5, roughness: 0.1 } );
+            var material3 = new THREE.MeshStandardMaterial( { color: 0x3333AA, metalness: 0.5, roughness: 0.1 } );
+            var nucleo = new THREE.SphereBufferGeometry( 15, 16, 32 );
+            var estructuranucleo = new THREE.SphereBufferGeometry( 30, 16, 32 );
+            var sphere = new THREE.SphereBufferGeometry( 4, 16, 8 );
+            
+            light1 = new THREE.PointLight( 0xff0040, 5, 50 );
+				light1.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0xff0040 } ) ) );
+         
+				scene.add( light1 );
+
+				light2 = new THREE.PointLight( 0x0040ff, 5, 50 );
+				light2.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0x0040ff } ) ) );
+				scene.add( light2 );
+
+				light3 = new THREE.PointLight( 0x80ff80, 5, 50 );
+				light3.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0x80ff80 } ) ) );
+				scene.add( light3 );
+
+				light4 = new THREE.PointLight( 0xffaa00, 5, 50 );
+				light4.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0xffaa00 } ) ) );
+				scene.add( light4 );
+            light5 = new THREE.PointLight( 0xff0040, 5, 50 );
+				light5.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0xff0040 } ) ) );
+         
+				scene.add( light5 );
+
+				light6 = new THREE.PointLight( 0x0040ff, 5, 50 );
+				light6.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0x0040ff } ) ) );
+				scene.add( light6 );
+
+				light7 = new THREE.PointLight( 0x80ff80, 5, 50 );
+				light7.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0x80ff80 } ) ) );
+				scene.add( light7 );
+
+				light8 = new THREE.PointLight( 0xffaa00, 5, 50 );
+				light8.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0xffaa00 } ) ) );
+				scene.add( light8 );
+            
+            nucleo1 = new THREE.PointLight( 0xffaa00, 3, 250 );
+				nucleo1.add( new THREE.Mesh( nucleo, new THREE.MeshLambertMaterial( { color: 0xffaa00 } ) ) );
+            nucleo1.translateY(30);
+				scene.add( nucleo1 );
+            
+            
+             var boxGeometry = new THREE.BoxGeometry(20,70,20);
+            var material1 = new THREE.MeshStandardMaterial( { color: 0xAA3333, metalness: 0.5, roughness: 0.1 } );
+            var material2 = new THREE.MeshStandardMaterial( { color: 0x33AA33, metalness: 0.5, roughness: 0.1 } );
+            var material3 = new THREE.MeshStandardMaterial( { color: 0x3333AA, metalness: 0.5, roughness: 0.1 } );
+            
+ 		   var cubes = [];
+            for(var i=0; i<9; i++){
+                if(i<3)
+                    cubes[i] = new THREE.Mesh( boxGeometry, material1 );
+                
+                else if(i>=3 && i<6)
+                    cubes[i] = new THREE.Mesh( boxGeometry, material2 );
+                else if(i>=6 && i<9)
+                    cubes[i] = new THREE.Mesh( boxGeometry, material3 );
+                scene.add( cubes[i] );
+                if(i<3)
+                    
+                     cubes[i].translateX(80).translateY(25);
+                
+                
+                else if(i>=3 && i<6)
+                    cubes[i].translateZ(-70).translateY(15);
+                
+                else if(i>=6 && i<9)
+                    cubes[i].translateZ(70).translateY(15);
+                switch(i){
+                    case 1: cubes[i].translateX(-24); break;
+                    case 2: cubes[i].translateX( 24); break;
+                    case 3: cubes[i].translateX(-23); break;
+                    case 5: cubes[i].translateX( 23); break;
+                    case 6: cubes[i].translateX(-22); break;
+                    case 8: cubes[i].translateX( 22); break;
+                    }
+            }
+            
+			//CREAR LOS OBJETOS
+           var indexedGeom = new THREE.SphereBufferGeometry(200, 32, 32);
+var indexed = new THREE.Mesh(indexedGeom, new THREE.MeshPhongMaterial({color: 0xffffff, wireframe: true}));
+indexed.position.x = -15;
+scene.add(indexed);
+            
+            var estructura=new THREE.Mesh(estructuranucleo,new THREE.MeshPhongMaterial({color: 0xff0040, wireframe: true}));
+            estructura.translateY(30);
+            scene.add(estructura);
+		
+				var geometry = new THREE.PlaneBufferGeometry(50000, 50000 );
+
+				var mesh = new THREE.Mesh( geometry, material );
+      
+				mesh.position.set( 0, - 10, 0 );
+				mesh.rotation.x = - Math.PI * 0.5;
+				mesh.receiveShadow = true;
+				scene.add( mesh );				
+            
+var geometry = new THREE.ConeBufferGeometry( 30, 20, 8 );
+var material = new THREE.MeshLambertMaterial( {color: 0x641e1c} );
+var cone = new THREE.Mesh( geometry, material );
+cone.rotation.x=(Math.PI);  
+            cone.translateY(8);  
+scene.add( cone );
+         
+var range=250;
+  particulas = new THREE.Object3D();
+scene.add( particulas );
+geom = new THREE.SphereGeometry( 2, 35, 35 );
+for(var i = 0; i < 300; i++ ) {
+  
+  var  mat = new THREE.MeshPhongMaterial();
+      var  cube = new THREE.Mesh( geom, mat );
+ 
+   
+    cube.rotation.set( Math.random(), Math.random(), Math.random() );
+     cube.position.x = range * (0.5 - Math.random());
+     cube.position.y = range * (0.5 - Math.random());
+     cube.position.z = range * (0.5 - Math.random());
+   
+    particulas.add( cube );
+   
+}
+				//MOVER LA CÁMARA
+			camera.position.x = -150;
+			camera.position.y = 80;	 
+		  	camera.position.z = 80;			
+		  	camera.lookAt( origin );
+			}
+   
+    function animate() {
+        requestAnimationFrame( animate );
+        controls.update(); // required if controls.enableDamping = true, or if controls.autoRotate = true
+        render();
+    }
+    
+    function render(){
+        var time = Date.now() * 0.0005;
+        light1.position.x = Math.sin( time * 0.7 ) * 30;
+				light1.position.y = Math.cos( time * 0.75 ) * 50;
+				light1.position.z = Math.cos( time * 0.73 ) * 50;
+
+				light2.position.x = Math.cos( time * 0.73 ) * 50;
+				light2.position.y = Math.sin( time * 0.75 ) * 50;
+				light2.position.z = Math.sin( time * 0.77 ) * 50;
+
+				light3.position.x = Math.sin( time * 0.77 ) * 50;
+				light3.position.y = Math.cos( time * 0.73 ) * 50;
+				light3.position.z = Math.sin( time * 0.75 ) * 50;
+
+				light4.position.x = Math.sin( time * 0.3 ) * 50;
+				light4.position.y = Math.cos( time * 0.7 ) * 50;
+				light4.position.z = Math.sin( time * 0.5 ) * 50;
+        
+			    light5.position.x = Math.sin( time * 0.3 ) * 80;
+				light5.position.y = Math.cos( time * 0.7 ) * 80;
+				light5.position.z = Math.cos( time * 0.5 ) * 80;
+
+				light6.position.x = Math.cos( time * 0.53 ) * 80;
+				light6.position.y = Math.sin( time * 0.55 ) * 80;
+				light6.position.z = Math.sin( time * 0.57 ) * 80;
+
+				light7.position.x = Math.sin( time * 0.47 ) * 80;
+				light7.position.y = Math.cos( time * 0.43 ) * 80;
+				light7.position.z = Math.sin( time * 0.45 ) * 80;
+
+				light8.position.x = Math.sin( time * 0.63 ) * 80;
+				light8.position.y = Math.cos( time * 0.67 ) * 80;
+				light8.position.z = Math.sin( time * 0.65 ) * 80;
+			
+         particulas.rotation.y=Math.sin( time * 0.009 ) * 70;
+     				renderer.render( scene, camera );
+   
+    }
+     render();
+    </script>
+  </body>
+</html>

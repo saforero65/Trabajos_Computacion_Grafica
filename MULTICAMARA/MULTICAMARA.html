@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MULTICAMARA</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src='js/libs/dat.gui.min.js'></script>
+    <script>
+		var scene, aspect, camera, camera2, camera3, camera4, renderer, controls;
+        var geometry, geometry1, geometry2, geometry3;
+        var mapWidth = 320, mapHeight = 240;
+        var w = window.innerWidth, h = window.innerHeight;
+        var frustumSize = 5;
+		var startTime = Date.now();
+		
+		init();
+		animate();
+	
+		function init(){
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xAAAAAA );
+			aspect = window.innerWidth / window.innerHeight;
+			camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
+			renderer = new THREE.WebGLRenderer({antialias: true});
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+            
+			var size = 10;
+			var arrowSize = 1;
+			var divisions = size;
+			var origin = new THREE.Vector3( 0, 0, 0 );
+			var x = new THREE.Vector3( 1, 0, 0 );
+			var y = new THREE.Vector3( 0, 1, 0 );
+		  	var z = new THREE.Vector3( 0, 0, 1 );
+			var color1 = new THREE.Color( 0xFFFFFF );
+		  	var color2 = new THREE.Color( 0x333333 );
+		  	var colorR = new THREE.Color( 0xAA3333 );
+		  	var colorG = new THREE.Color( 0x33AA33 );
+		  	var colorB = new THREE.Color( 0x333366 );
+		  
+		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
+		  	var axesHelper = new THREE.AxesHelper( size );
+		  	var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
+		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
+		  	var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
+            
+            //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
+            gridHelperXY.rotateOnWorldAxis ( x, THREE.Math.degToRad(90) );
+            gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+            gridHelperYZ.rotateOnWorldAxis ( z, THREE.Math.degToRad(90) );
+            
+            //CREAR LAS FLECHAS QUE INDICAN LOS EJES DE COORDENADAS 3D
+            var arrowX = new THREE.ArrowHelper( x, origin, arrowSize, colorR );
+            var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
+            var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
+            
+            //CREAR ILUMINACIÓN
+          //Punto
+           var geoCilindro = new THREE.Geometry();
+var geoEsfera=new THREE.Geometry();
+            var zTemp = 0;
+           var res = 20.0;
+for( var i = 0; i < 10.0;i++){
+                for( var j = 0; j < 10.0; j++){
+                        for( var k = 0; k < 10.0; k++){
+                    var punto = new THREE.Vector3();
+                   punto.x = (0.2 *j) ;
+                 punto.y = (0.2 *i) ;
+                 punto.z = (0.2 *k) ;
+      geoCilindro.vertices.push( punto );
+                }
+            }
+}
+var geoRectangulo=new THREE.Geometry();
+for( var i = 0; i < 2.0;i++){
+                for( var j = 0; j < 16.0; j++){
+                        for( var k = 0; k < 16.0; k++){
+                    var punto = new THREE.Vector3();
+                   punto.x = (0.2 *j)-0.6 ;
+                 punto.y = (0.2 *i)+1.6 ;
+                 punto.z = (0.2 *k)-0.6 ;
+      geoRectangulo.vertices.push( punto );
+                }
+            }
+}
+for( var i = 0; i < 10.0;i++){
+                for( var j = 0; j < 10.0; j++){
+                        for( var k = 0; k < 10.0; k++){
+                    var punto = new THREE.Vector3();
+                   punto.x = (0.2 *j) ;
+                 punto.y = (0.2 *i)+1.6 ;
+                 punto.z = (0.2 *k) ;
+      geoCilindro.vertices.push( punto );
+                }
+            }
+}
+
+for( var i = 0; i < 2.0;i++){
+                for( var j = 0; j < 16.0; j++){
+                        for( var k = 0; k < 16.0; k++){
+                    var punto = new THREE.Vector3();
+                   punto.x = (0.2 *j)-0.6 ;
+                 punto.y = (0.2 *i)+3.2 ;
+                 punto.z = (0.2 *k)-0.6 ;
+      geoRectangulo.vertices.push( punto );
+                }
+            }
+}
+for( var i = 0; i < 10.0;i++){
+                for( var j = 0; j < 10.0; j++){
+                        for( var k = 0; k < 10.0; k++){
+                    var punto = new THREE.Vector3();
+                   punto.x = (0.2 *j) ;
+                 punto.y = (0.2 *i)+3.2 ;
+                 punto.z = (0.2 *k) ;
+      geoCilindro.vertices.push( punto );
+        }      }   }
+for( var i = 0; i < 20.0;i++){
+                for( var j = 0; j < 20.0; j++){
+                        for( var k = 0; k < 20.0; k++){
+                    var punto = new THREE.Vector3();
+                  punto.x = (1 *j)-10 ;
+               
+                 punto.z = (1 *k)-10 ;
+      geoEsfera.vertices.push( punto );
+        }      }   }
+
+for( var i = 0; i < 360;i++){
+                for( var j = 0; j < 360; j++){
+                        
+                    var punto = new THREE.Vector3();
+                  punto.x = ((1.5  ) * Math.cos( ( j *  Math.PI ) / res) * Math.sin( ( i* Math.PI ) / res))+1;
+                 punto.y = (0.5 * Math.cos( ( i *2 * Math.PI ) / res))+5.5 ;
+                 punto.z = ((1.5  ) * Math.sin( ( j *  Math.PI ) / res)* Math.sin(( i *  Math.PI ) / res))+1 ;
+                 geoRectangulo.vertices.push( punto );
+                }
+            }
+	for( var i = 0; i < 60;i++){
+                for( var j = 0; j < 60; j++){
+                        
+                    var punto = new THREE.Vector3();
+                  punto.x = ((0.5  ) * Math.cos( ( j *  Math.PI ) / res) * Math.sin( ( i* Math.PI ) / res))+5;
+                 punto.y = (0.5 * Math.cos( ( i  * Math.PI ) / res))+8 ;
+                 punto.z = ((0.5  ) * Math.sin( ( j *  Math.PI ) / res)* Math.sin(( i *  Math.PI ) / res)) ;
+                 geoEsfera.vertices.push( punto );
+                }
+            }
+	
+for( var i = 0; i < 40;i++){
+              for( var j = 0; j < 40;j++){
+                var punto = new THREE.Vector3();
+              punto.x = (0.5 * (res ) / res ) * Math.cos( ( j * 2.0 * Math.PI ) / res)-4 ;
+                 punto.y = 0.2 * i ;
+                 punto.z = (0.5 * (res ) / res ) * Math.sin( ( j * 2.0 * Math.PI ) / res) ;
+                 geoRectangulo.vertices.push( punto );
+                }
+            } 
+for( var i = 0; i < 40;i++){
+              for( var j = 0; j < 40;j++){
+                var punto = new THREE.Vector3();
+              punto.x = (0.5 * (res ) / res ) * Math.cos( ( j * 2.0 * Math.PI ) / res)-3 ;
+                 punto.y = 0.2 * i ;
+                 punto.z = (0.5 * (res ) / res ) * Math.sin( ( j * 2.0 * Math.PI ) / res) ;
+                 geoRectangulo.vertices.push( punto );
+                }
+            } 
+
+for( var i = 0; i < 40;i++){
+              for( var j = 0; j < 40;j++){
+                var punto = new THREE.Vector3();
+              punto.x = (0.5 * (res ) / res ) * Math.cos( ( j * 2.0 * Math.PI ) / res)-3.5 ;
+                 punto.y = 0.2 * i ;
+                 punto.z = (0.5 * (res ) / res ) * Math.sin( ( j * 2.0 * Math.PI ) / res)+0.5 ;
+                 geoCilindro.vertices.push( punto );
+                }
+            } 
+for( var i = 0; i < 40;i++){
+              for( var j = 0; j < 40;j++){
+                var punto = new THREE.Vector3();
+              punto.x = (0.5 * (res ) / res ) * Math.cos( ( j * 2.0 * Math.PI ) / res)-3.5 ;
+                 punto.y = 0.2 * i ;
+                 punto.z = (0.5 * (res ) / res ) * Math.sin( ( j * 2.0 * Math.PI ) / res)-0.5 ;
+                 geoCilindro.vertices.push( punto );
+                }
+            } 
+
+            
+			//CREAR LAS GEOMETRÍAS
+			//Far plane
+			var width = 16.0;
+			var height = 9.0;
+			var FOV = 45.0;			//Ángulo de apertura
+			var sinFOV = Math.sin((FOV/2.0)*Math.PI/180.0);
+			var aR = width/height;	//AspectRatio
+			var nearZ = 1;
+			var farZ = 10;
+			var COA = new THREE.Vector3(-5,2,0);
+			var planeGeometry = new THREE.PlaneGeometry(width, height);
+            
+            camera2 = new THREE.OrthographicCamera( frustumSize * aspect / - 2,  //left — Camera frustum left plane.
+                                                    frustumSize * aspect / 2,    //right — Camera frustum right plane.
+                                                    frustumSize / 2,             //top — Camera frustum top plane.
+                                                    frustumSize / - 2,           //bottom — Camera frustum bottom plane.
+                                                    1,                           //near — Camera frustum near plane.
+                                                    10 );
+            camera3 = new THREE.OrthographicCamera( -frustumSize * aspect / - 2,  //left — Camera frustum left plane.
+                                                    frustumSize * aspect / 2,    //right — Camera frustum right plane.
+                                                    frustumSize / 2,             //top — Camera frustum top plane.
+                                                    frustumSize / - 2,           //bottom — Camera frustum bottom plane.
+                                                    1,                           //near — Camera frustum near plane.
+                                                    10);
+            camera4 = new THREE.OrthographicCamera( -frustumSize * aspect / - 2,  //left — Camera frustum left plane.
+                                                    frustumSize * aspect / 2,    //right — Camera frustum right plane.
+                                                    frustumSize / 2,             //top — Camera frustum top plane.
+                                                    frustumSize / - 2,           //bottom — Camera frustum bottom plane.
+                                                    1,                           //near — Camera frustum near plane.
+                                                    10);
+
+            var helper = new THREE.CameraHelper( camera2 );
+            var helper1 = new THREE.CameraHelper( camera3 );
+            var helper2 = new THREE.CameraHelper( camera4 );
+//            scene.add( helper );
+  //          scene.add( helper1 );
+    //        scene.add( helper2 );
+			
+			//CUBO EN EL ESPACIO
+	
+            //CREAR LOS MATERIALES
+            var material1 = new THREE.MeshStandardMaterial( { color: 0x2F1F0C, metalness: 0.5, roughness: 0.1 } ); //CONO
+            var material2 = new THREE.MeshStandardMaterial( { color: 0x2F1F0C, metalness: 0.5, roughness: 0.1 } ); //CILINDRO
+            var material3 = new THREE.MeshStandardMaterial( { color: 0x797168, metalness: 0.5, roughness: 0.1 } ); //ESFERA
+            var material4 = new THREE.MeshStandardMaterial( { color: 0x797168, metalness: 0.5, roughness: 0.1 } ); //CONO1
+		var matPunto = new THREE.PointsMaterial( { color:0xFFFFFF, size: 0.05 } );
+			var matPunto2 = new THREE.PointsMaterial( { color:0x333366 , size: 0.08 } );
+                        var matPunto3 = new THREE.PointsMaterial( { color:0xFFFF00 , size: 0.06 } );
+
+			//CREAR LOS OBJETOS
+			var cilindro = new THREE.Points( geoCilindro, matPunto );
+		  var rectangulo = new THREE.Points( geoRectangulo, matPunto2 );
+                  var esfera=new THREE.Points(geoEsfera,matPunto3);
+
+            //scene.add( gridHelperXY );
+            //scene.add( gridHelperXZ );
+            scene.add( arrowX );
+            scene.add( arrowY );
+            scene.add( arrowZ );
+            scene.add( cilindro );
+                        scene.add(rectangulo);
+			scene.add(esfera);
+          
+
+			camera.position.x = 5;
+			camera.position.y = 5;
+		  	camera.position.z = 10;
+			
+		  	camera.lookAt( origin );
+            
+            var effectController  = {
+                frustum: 10,
+                nearPlane: 1,
+                farPlane: 10,
+                aspect: w/h,
+            };
+
+            var effectController1  = {
+                frustum: 3,
+                nearPlane: 2.1,
+                farPlane: 10,
+                aspect: w/h,
+            };
+
+            var effectController2  = {
+                frustum: 5,
+                nearPlane: .1,
+                farPlane: 0,
+                aspect: (w/h)*.8,
+            };
+            
+            var matChanger = function( ) {
+ 
+
+                frustumSize = effectController1.frustum;
+                aspect = effectController1.aspect;
+                camera3.left   = - frustumSize * aspect / 2;
+                camera3.right  =   frustumSize * aspect / 2;
+                camera3.top    =   frustumSize / 2;
+                camera3.bottom = - frustumSize / 2;
+                camera3.near = effectController1.nearPlane;
+                camera3.far = effectController1.farPlane;
+
+
+
+			camera3.position.x = 1;
+			camera3.position.y = 1;
+		  	camera3.position.z = 1;
+
+
+                frustumSize = effectController2.frustum;
+                aspect = effectController2.aspect;
+                camera4.left   = - frustumSize * aspect / 2;
+                camera4.right  =   frustumSize * aspect / 2;
+                camera4.top    =   frustumSize / 2;
+                camera4.bottom = - frustumSize / 2;
+                camera4.near = effectController1.nearPlane;
+                camera4.far = effectController1.farPlane;
+
+                camera2.updateProjectionMatrix();
+                camera3.updateProjectionMatrix();
+                camera4.updateProjectionMatrix();
+                helper.update();
+                helper1.update();
+                helper2.update();
+
+            };
+            
+          
+            
+            matChanger();
+		}
+		function animate() {
+			requestAnimationFrame( animate );
+			//controls.update(); // required if controls.enableDamping = true, or if controls.autoRotate = true
+			render();
+		}
+        function render() {
+	var dtime = Date.now()-startTime; //Movimiento   
+            renderer.setViewport( 0, 0, w, h );
+            renderer.setScissor( 0, 0, w, h );
+            renderer.render( scene, camera );
+
+        
+    camera2.rotation.x = 1*Math.cos(dtime/10000); //Movimiento
+	camera2.rotation.z = 1*Math.sin(dtime/10000);//Movimiento
+            renderer.setViewport( 10, h - mapHeight - 10, mapWidth, mapHeight );
+            renderer.setScissor( 10, h - mapHeight - 10, mapWidth, mapHeight );
+            renderer.setScissorTest( true );
+            renderer.render( scene, camera2 );
+
+        
+    camera3.rotation.y = 1*Math.cos(dtime/10000); //Movimiento
+	camera3.position.z = 1*Math.sin(dtime/10000);//Movimiento
+            renderer.setViewport( 530, h - mapHeight - 10, mapWidth, mapHeight );
+            renderer.setScissor( 530, h - mapHeight - 10, mapWidth, mapHeight );
+            renderer.setScissorTest( true );
+            renderer.render( scene, camera3 );
+
+        
+    camera4.rotation.x = 2*Math.cos(dtime/10000); //Movimiento
+	camera4.position.z = 2*Math.sin(dtime/10000);//Movimiento
+            renderer.setViewport( 1000, h - mapHeight - 10, mapWidth, mapHeight );
+            renderer.setScissor( 1000, h - mapHeight - 10, mapWidth, mapHeight );
+            renderer.setScissorTest( true );
+            renderer.render( scene, camera4 );
+		}
+    </script>
+  </body>
+</html>

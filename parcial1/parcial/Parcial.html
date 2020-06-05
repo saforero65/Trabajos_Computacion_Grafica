@@ -1,0 +1,565 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <title>Parcial</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+      <div id="info">
+          PERSONAJE<br />
+          Usar flecha arriba y abajo para trasladar camara .<br />
+          Usar flechas laterales para rotar camara.
+          Usar flechas W,S,A,D para mover personaje.<br />
+      </div>
+      <script src="js/three.min.js"></script>
+      <script src="js/controls/OrbitControls.js"></script>
+      <script>
+
+        var scene, aspect, camera, renderer, controls;
+        var geometry1, geometry2;
+        var hips, torso, head;
+        var rightFoot, rightLeg, rightArm, rightHand;
+        var leftFoot, leftLeg, leftArm, leftHand;
+        var upArrow = false;
+        var downArrow = false;
+        var leftArrow = false;
+        var rightArrow = false;
+        var scaleUp = false;
+        var scaleDown = false;
+        var xAxis = true;
+        var yAxis = false;
+        var zAxis = false;
+
+        var thetaSum = 0;
+        var positivo = false;
+		var startTime = Date.now();
+		var boton1 = false;
+        var boton2 = false;
+        var boton3 = false;
+        var boton4 = false;
+		var geometry;
+        var objeto1, objeto2, objeto3;
+		init();
+		animate();
+
+		function init(){
+			//INICIALIZACIÓN DE LA ESCENA
+			scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0xAAAAAA );
+			aspect = window.innerWidth / window.innerHeight;
+			camera = new THREE.PerspectiveCamera( 90, aspect, 0.1, 10000);
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+            controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+
+			//EVENTOS DE TECLADO
+			
+			var onKeyDown = function ( event ) {
+				switch ( event.keyCode ) {
+					case 49: // PROYECCION YZ
+						boton1 = true;
+						break;
+					case 50: //
+						boton2 = true;
+						break;
+                    case 51: // PROYECCION XY
+                        boton3 = true;
+                        break;
+                    case 52: //
+                        boton4 = true;
+                        break;
+				    case 87: // TRASLADAR ADELANTE
+				        upArrow = true;
+				        break;
+				    case 83: // TRASLADAR ATRÁS
+				        downArrow = true;
+				        break;
+				  
+				   
+				    case 68: // ROTAR CW
+				        leftArrow = true;
+				        break;
+				    case 65: // ROTAR CCW
+				        rightArrow = true;
+				        break;
+				   
+				}
+			};
+
+			var onKeyUp = function ( event ) {
+				switch ( event.keyCode ) {
+					case 49: // TRASLADAR EN DIRECCION POSITIVA
+						boton1 = false;
+						break;
+					case 50: // TRASLADAR EN DIRECCION NEGATIVA
+						boton2 = false;
+						break;
+                    case 51: // PROYECCION XY
+                        boton3 = false;
+                        break;
+                    case 52: //
+                        boton4 = false;
+                        break;
+				    case 87: // TRASLADAR
+				        upArrow = false;
+				        break;
+				    case 83: // TRASLADAR
+				        downArrow = false;
+				        break;
+				    case 68: // ROTAR CW
+				        leftArrow = false;
+				        break;
+				    case 65: // ROTAR CCW
+				        rightArrow = false;
+				        break;
+				}
+			};
+
+			document.addEventListener( 'keydown', onKeyDown, false );
+			document.addEventListener( 'keyup', onKeyUp, false );
+
+			//ELEMENTOS DE ESCENA
+			var size = 100;
+			var arrowSize = 1;
+			var divisions = size;
+			var origin = new THREE.Vector3( 0, 0, 0 );
+			var x = new THREE.Vector3( 1, 0, 0 );
+			var y = new THREE.Vector3( 0, 1, 0 );
+		  	var z = new THREE.Vector3( 0, 0, 1 );
+			var color1 = new THREE.Color( 0xFFFFFF );
+		  	var color2 = new THREE.Color( 0x333333 );
+		  	var colorR = new THREE.Color( 0xAA3333 );
+		  	var colorG = new THREE.Color( 0x33AA33 );
+		  	var colorB = new THREE.Color( 0x333366 );
+			var colorRd = new THREE.Color( 0xAA6666 );
+		  	var colorGd = new THREE.Color( 0x66AA66 );
+		  	var colorBd = new THREE.Color(0x6666AA);
+		  	var cladrillo = new THREE.Color(0x61210B);
+		  	var ctecho = new THREE.Color(0x424242);
+		  	var ccancha = new THREE.Color(0x5882FA);
+		  	var cpasto = new THREE.Color(0x0B610B);
+		  	var clados = new THREE.Color(0x3B240B);
+		  	var cACERA = new THREE.Color(0x8A4B08);
+		  	var CPISO = new THREE.Color(0x6E6E6E);
+		  	var piel = new THREE.Color(0xF7BE81);
+		  	var negro = new THREE.Color(0x000000);
+
+		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
+		  	var axesHelper = new THREE.AxesHelper( size );
+		  	var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
+		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
+		  	var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
+
+            //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
+            gridHelperXY.rotateOnWorldAxis ( x, THREE.Math.degToRad(90) );
+            gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+            gridHelperYZ.rotateOnWorldAxis ( z, THREE.Math.degToRad(90) );
+
+            //CREAR LAS FLECHAS QUE INDICAN LOS EJES DE COORDENADAS 3D
+            var arrowX = new THREE.ArrowHelper( x, origin, arrowSize, colorR );
+            var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
+            var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
+            var boxGeometry = new THREE.BoxGeometry(1, 2, 1);
+			//CREAR LAS GEOMETRÍAS
+            geometry1 = new THREE.BoxGeometry(1, 1, 1);
+            for (var i = 0; i < geometry1.faces.length; i++) {
+                switch (i) {
+                    case 0: case 1: geometry1.faces[i].color = negro; break;
+                    case 2: case 3: geometry1.faces[i].color = negro; break;
+                    case 4: case 5: geometry1.faces[i].color = negro; break;
+                    case 6: case 7: geometry1.faces[i].color = negro; break;
+                    case 8: case 9: geometry1.faces[i].color = negro; break;
+                    case 10: case 11: geometry1.faces[i].color = negro; break;
+                }
+            }
+            geometry2 = new THREE.CylinderGeometry(.5, .5, 1, 32);
+            for (var i = 0; i < geometry2.faces.length; i++) {
+                if (geometry2.faces[i].normal.y != 0) {
+                    geometry2.faces[i].color = negro;
+                }
+                geometry2.faces[i].color = piel;
+            }
+
+            var boxGeometry = new THREE.BoxGeometry(2, 6, 3);
+			//CREAR LOS MATERIALES
+            var materialcaras = new THREE.MeshBasicMaterial({ color: color1, vertexColors: THREE.FaceColors });
+            var material1 = new THREE.MeshStandardMaterial({ color: 0xAA3333, metalness: 0.5, roughness: 0.1 });
+            var material2 = new THREE.MeshStandardMaterial({ color: 0x33AA33, metalness: 0.5, roughness: 0.1 });
+            var material3 = new THREE.MeshStandardMaterial({ color: 0x3333AA, metalness: 0.5, roughness: 0.1 });
+            scene.add(arrowX);
+            scene.add(arrowY);
+            scene.add(arrowZ);
+		    //CREAR LOS OBJETOS
+           
+            hips = new THREE.Mesh(geometry1, material1);	//CUBO
+            leftFoot = hips.clone();
+
+            torso = new THREE.Mesh(geometry2, materialcaras); //CILINDRO
+            leftLeg = torso.clone();
+
+            leftLeg.applyMatrix(new THREE.Matrix4().makeScale(.5, 2, .5));
+            rightLeg = leftLeg.clone();
+            leftLeg.applyMatrix(new THREE.Matrix4().makeTranslation(-.5, -1, 0));
+            rightLeg.applyMatrix(new THREE.Matrix4().makeTranslation(.5, -1, 0));
+
+            rightFoot = leftFoot.clone();
+            leftFoot.applyMatrix(new THREE.Matrix4().getInverse(leftLeg.matrix));
+            leftFoot.applyMatrix(new THREE.Matrix4().makeScale(.5, .5, 1));
+            rightFoot.applyMatrix(new THREE.Matrix4().getInverse(rightLeg.matrix));
+            rightFoot.applyMatrix(new THREE.Matrix4().makeScale(.5, .5, 1));
+            leftFoot.applyMatrix(new THREE.Matrix4().makeTranslation(-.5, -.75, 0));
+            rightFoot.applyMatrix(new THREE.Matrix4().makeTranslation(.5, -.75, 0));
+
+            torso.applyMatrix(new THREE.Matrix4().makeTranslation(0, 1, 0));
+
+            hips.add(torso);
+            hips.add(leftLeg);
+            hips.add(rightLeg);
+            leftLeg.add(leftFoot);
+            rightLeg.add(rightFoot);
+            hips.translateY(3);
+            geometry11 = new THREE.BoxGeometry(2, 2, 2);
+            for (var i = 0; i < geometry11.faces.length; i++) {
+                switch (i) {
+                    case 0: case 1: geometry1.faces[i].color = colorRd; break;
+                    case 2: case 3: geometry1.faces[i].color = colorRd; break;
+                    case 4: case 5: geometry1.faces[i].color = colorGd; break;
+                    case 6: case 7: geometry1.faces[i].color = colorGd; break;
+                    case 8: case 9: geometry1.faces[i].color = colorBd; break;
+                    case 10: case 11: geometry1.faces[i].color = colorBd; break;
+                }
+            }
+           //Porteria
+            var porteria = new THREE.BoxGeometry(12, 8, 20);
+            for (var i = 0; i < porteria.faces.length; i++) {
+                switch (i) {
+                    case 0: case 1: porteria.faces[i].color = cladrillo; break;
+                    case 2: case 3: porteria.faces[i].color = cladrillo; break;
+                    case 4: case 5: porteria.faces[i].color = ctecho; break;
+                    case 6: case 7: porteria.faces[i].color = ctecho; break;
+                    case 8: case 9: porteria.faces[i].color = clados; break;
+                    case 10: case 11: porteria.faces[i].color = clados; break;
+                }
+            }
+            var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            var cube = new THREE.Mesh(porteria, materialcaras);
+            cube.translateX(-40).translateY(4);
+            scene.add(cube);
+		    //canchas
+            var cancha = new THREE.BoxGeometry(15, 1, 30);
+            var material = new THREE.MeshBasicMaterial({ color: ccancha });
+            var cube = new THREE.Mesh(cancha, material);
+            cube.translateX(-30).translateZ(30);
+            scene.add(cube);
+            var cancha2 = new THREE.BoxGeometry(15, 1, 30);
+            var material = new THREE.MeshBasicMaterial({ color: ccancha });
+            var cube = new THREE.Mesh(cancha2, material);
+            cube.translateX(-10).translateZ(30);
+            scene.add(cube);
+            //AULA MAXIMA
+            var AM = new THREE.BoxGeometry(40, 18, 20);
+            for (var i = 0; i < AM.faces.length; i++) {
+                switch (i) {
+                    case 0: case 1: AM.faces[i].color = cladrillo; break;
+                    case 2: case 3: AM.faces[i].color = cladrillo; break;
+                    case 4: case 5: AM.faces[i].color = ctecho; break;
+                    case 6: case 7: AM.faces[i].color = ctecho; break;
+                    case 8: case 9: AM.faces[i].color = clados; break;
+                    case 10: case 11: AM.faces[i].color = clados; break;
+                }
+            }
+            var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            var cube = new THREE.Mesh(AM, materialcaras);
+            cube.translateX(-25).translateZ(-40).translateY(9);
+            scene.add(cube);
+		    //SALONES
+            var SALONES = new THREE.BoxGeometry(15, 20, 80);
+            for (var i = 0; i < SALONES.faces.length; i++) {
+                switch (i) {
+                    case 0: case 1: SALONES.faces[i].color = cladrillo; break;
+                    case 2: case 3: SALONES.faces[i].color = cladrillo; break;
+                    case 4: case 5: SALONES.faces[i].color = ctecho; break;
+                    case 6: case 7: SALONES.faces[i].color = ctecho; break;
+                    case 8: case 9: SALONES.faces[i].color = clados; break;
+                    case 10: case 11: SALONES.faces[i].color = clados; break;
+                }
+            }
+            var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            var cube = new THREE.Mesh(SALONES, materialcaras);
+            cube.translateX(30).translateZ(-15).translateY(10);
+            scene.add(cube);
+            //SALONESA
+            var SALONESA = new THREE.BoxGeometry(25, 20, 20);
+            for (var i = 0; i < SALONESA.faces.length; i++) {
+                switch (i) {
+                    case 0: case 1: SALONESA.faces[i].color = cladrillo; break;
+                    case 2: case 3: SALONESA.faces[i].color = cladrillo; break;
+                    case 4: case 5: SALONESA.faces[i].color = ctecho; break;
+                    case 6: case 7: SALONESA.faces[i].color = ctecho; break;
+                    case 8: case 9: SALONESA.faces[i].color = clados; break;
+                    case 10: case 11: SALONESA.faces[i].color = clados; break;
+                }
+            }
+            var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            var cube = new THREE.Mesh(SALONESA, materialcaras);
+            cube.translateX(50).translateZ(-15).translateY(10);
+            scene.add(cube);
+		    //SALONESB
+            var SALONESB = new THREE.BoxGeometry(25, 20, 20);
+            for (var i = 0; i < SALONESB.faces.length; i++) {
+                switch (i) {
+                    case 0: case 1: SALONESB.faces[i].color = cladrillo; break;
+                    case 2: case 3: SALONESB.faces[i].color = cladrillo; break;
+                    case 4: case 5: SALONESB.faces[i].color = ctecho; break;
+                    case 6: case 7: SALONESB.faces[i].color = ctecho; break;
+                    case 8: case 9: SALONESB.faces[i].color = clados; break;
+                    case 10: case 11: SALONESB.faces[i].color = clados; break;
+                }
+            }
+            var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            var cube = new THREE.Mesh(SALONESB, materialcaras);
+            cube.translateX(50).translateZ(20).translateY(10);
+            scene.add(cube);
+		    //SALONESC
+            var SALONESC = new THREE.BoxGeometry(25, 20, 20);
+            for (var i = 0; i < SALONESC.faces.length; i++) {
+                switch (i) {
+                    case 0: case 1: SALONESC.faces[i].color = cladrillo; break;
+                    case 2: case 3: SALONESC.faces[i].color = cladrillo; break;
+                    case 4: case 5: SALONESC.faces[i].color = ctecho; break;
+                    case 6: case 7: SALONESC.faces[i].color = ctecho; break;
+                    case 8: case 9: SALONESC.faces[i].color = clados; break;
+                    case 10: case 11: SALONESC.faces[i].color = clados; break;
+                }
+            }
+            var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            var cube = new THREE.Mesh(SALONESC, materialcaras);
+            cube.translateX(50).translateZ(-50).translateY(10);
+            scene.add(cube);
+		    //PASTO
+            var cancha = new THREE.BoxGeometry(150, 0.9, 150);
+            var material = new THREE.MeshBasicMaterial({ color: cpasto });
+            var cube = new THREE.Mesh(cancha, material);
+            scene.add(cube);
+		    //ANDENES
+            var anden1 = new THREE.BoxGeometry(15, 0.91, 40);
+            var material = new THREE.MeshBasicMaterial({ color: cACERA });
+            var cube = new THREE.Mesh(anden1, material);
+            cube.translateX(15);
+            scene.add(cube);
+            var anden2 = new THREE.BoxGeometry(15, 0.91, 5);
+            var material = new THREE.MeshBasicMaterial({ color: cACERA });
+            var cube = new THREE.Mesh(anden2, material);
+            cube.translateX(15).translateZ(-40);
+            scene.add(cube);
+            var anden3 = new THREE.BoxGeometry(15, 0.91, 5);
+            var material = new THREE.MeshBasicMaterial({ color: cACERA });
+            var cube = new THREE.Mesh(anden3, material);
+            cube.translateX(15).translateZ(45);
+            scene.add(cube);
+            var andenCANCHAS = new THREE.BoxGeometry(45, 0.92, 35);
+            var material = new THREE.MeshBasicMaterial({ color: cACERA });
+            var cube = new THREE.Mesh(andenCANCHAS, material);
+            cube.translateZ(30).translateX(-20);
+            scene.add(cube);
+            //ACERA
+            var ACERA = new THREE.BoxGeometry(5, 0.99, 150);
+            var material = new THREE.MeshBasicMaterial({ color: CPISO });
+            var cube = new THREE.Mesh(ACERA, material);
+            cube.translateZ(0).translateX(5);
+            scene.add(cube);
+            var ACERA = new THREE.BoxGeometry(15, 0.99, 150);
+            var material = new THREE.MeshBasicMaterial({ color: CPISO });
+            var cube = new THREE.Mesh(ACERA, material);
+            cube.translateZ(0).translateX(-54);
+            scene.add(cube);
+		    //CARRO 2
+            var carro5 = new THREE.BoxGeometry(4, 2, 2);
+            var auto5= new THREE.Mesh(carro5, material1);
+            auto5.translateZ(3).translateX(0).translateY(0);
+            scene.add(auto5);
+            var carro6 = new THREE.BoxGeometry(4, 4, 5);
+            var auto6 = new THREE.Mesh(carro6, material1);
+            auto6.translateZ(70).translateX(-50).translateY(1.5).rotateY(3.14159);
+            scene.add(auto6);
+            auto6.add(auto5);
+
+            var carro3 = new THREE.BoxGeometry(4, 2, 2);
+            var auto3 = new THREE.Mesh(carro3, material1);
+            auto3.translateZ(3).translateX(0).translateY(0);
+            scene.add(auto3);
+            var carro4 = new THREE.BoxGeometry(4, 4, 5);
+            var auto4 = new THREE.Mesh(carro4, material1);
+            auto4.translateZ(-70).translateX(-60).translateY(1.5);
+            scene.add(auto4);
+            auto4.add(auto3);
+
+		    //carro
+            var carro2 = new THREE.BoxGeometry(4, 2, 2);
+            var auto2 = new THREE.Mesh(carro2, material1);
+            auto2.translateZ(3).translateX(0).translateY(0);
+            scene.add(auto2);
+            var carro = new THREE.BoxGeometry(4, 4, 5);
+            var auto = new THREE.Mesh(carro, material1);
+            auto.translateZ(-70).translateX(5).translateY(1.5);
+            scene.add(auto);
+            auto.add(auto2);
+            var render = function () {
+                requestAnimationFrame(render);
+                auto.position.z += 0.09;
+                auto4.position.z += 0.051;
+                auto6.position.z -= 0.051;
+                renderer.render(scene, camera);
+            }
+            render();
+                //TUNEL
+            var TUNEL = new THREE.BoxGeometry(10, 10, 20);
+            for (var i = 0; i < TUNEL.faces.length; i++) {
+                switch (i) {
+                    case 0: case 1: TUNEL.faces[i].color = cladrillo; break;
+                    case 2: case 3: TUNEL.faces[i].color = cladrillo; break;
+                    case 4: case 5: TUNEL.faces[i].color = ctecho; break;
+                    case 6: case 7: TUNEL.faces[i].color = ctecho; break;
+                    case 8: case 9: TUNEL.faces[i].color = clados; break;
+                    case 10: case 11: TUNEL.faces[i].color = clados; break;
+                }
+            }
+            var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            var cube = new THREE.Mesh(TUNEL, materialcaras);
+            cube.translateX(35).translateZ(35).translateY(5);
+            scene.add(cube);
+            //ADMINISTRACION
+            var AD = new THREE.BoxGeometry(30, 30, 20);
+            for (var i = 0; i < AD.faces.length; i++) {
+                switch (i) {
+                    case 0: case 1: AD.faces[i].color = cladrillo; break;
+                    case 2: case 3: AD.faces[i].color = cladrillo; break;
+                    case 4: case 5: AD.faces[i].color = ctecho; break;
+                    case 6: case 7: AD.faces[i].color = ctecho; break;
+                    case 8: case 9: AD.faces[i].color = clados; break;
+                    case 10: case 11: AD.faces[i].color = clados; break;
+                }
+            }
+            var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            var cube = new THREE.Mesh(AD, materialcaras);
+            cube.translateX(35).translateZ(50).translateY(15);
+            scene.add(cube);
+            scene.add(cube);
+		    //AGREGAR A LA ESCENA
+            scene.add(gridHelperXZ);
+            scene.add(arrowX);
+            scene.add(arrowY);
+            scene.add(arrowZ);
+            scene.add(hips);
+            scene.add(cube);
+		    //scene.add( leftLeg );
+
+		    //MOVER LA CAMARA
+            camera.position.x = 10;
+            camera.position.y = 80;
+            camera.position.z = 0;
+            camera.lookAt(origin);
+
+            renderer.render(scene, camera);
+        }
+
+        function animate() {
+            render();
+            requestAnimationFrame(animate);
+        }
+      
+
+        function render() {
+            var dtime = Date.now() - startTime;
+            var tx = 0, ty = 0, tz = 0;	//Variables para traslacion
+
+            var sc = 1;				//Variable para escala
+            var theta = 0;			//Variable para ángulo de rotacion de piernas
+            var sigma = 0;			//Variable para ángulo de rotación de caderas
+
+            if (thetaSum >= 40 * Math.PI / 180)
+                positivo = false;
+            if (thetaSum <= -40 * Math.PI / 180)
+                positivo = true;
+            
+
+            if (upArrow) {
+                tx = 0; ty = 0; tz = .1;
+                if (positivo)
+                    theta = .09;
+                else
+                    theta = -.09;
+            }
+            if (downArrow) {
+                tx = 0; ty = 0; tz = -.1;
+                if (positivo)
+                    theta = .09;
+                else
+                    theta = -.09;
+            }
+            thetaSum += theta;
+
+            if (rightArrow)
+                sigma = -.1;
+            if (leftArrow)
+                sigma = .1;
+
+            
+            //MATRIZ DE TRASLACIÓN
+            var t = new THREE.Matrix4();
+            t.set(1, 0, 0, tx,
+                    0, 1, 0, ty,
+                    0, 0, 1, tz,
+                    0, 0, 0, 1);
+            
+
+            hips.matrix.multiply(t); 	//APLICAR LA TRASLACIÓN A NIVEL LOCAL
+
+            //ROTACIONES
+            var ct1 = Math.cos(theta);
+            var ct2 = Math.cos(-theta);
+            var cs = Math.cos(sigma);
+            var st1 = Math.sin(theta);
+            var st2 = Math.sin(-theta);
+            var ss = Math.sin(sigma);
+            var r = new THREE.Matrix4();
+            var r1 = new THREE.Matrix4();
+            var r2 = new THREE.Matrix4();
+
+            //MATRIZ DE ROTACIÓN EN EJE Y
+            r.set(cs, 0, ss, 0,
+                        0, 1, 0, 0,
+                      -ss, 0, cs, 0,
+                        0, 0, 0, 1);
+            //MATRICES DE ROTACIÓN EN EJE LOCAL DE PIERNAS	
+            r1.set(1, 0, 0, 0,
+                        0, ct1, -st1, 0,
+                        0, st1, ct1, 0,
+                        0, 0, 0, 1);
+            r2.set(1, 0, 0, 0,
+                        0, ct2, -st2, 0,
+                        0, st2, ct2, 0,
+                        0, 0, 0, 1);
+		
+		//ROTACION EN UN EJE PARALELO
+		var tempMatrix = new THREE.Matrix4();
+		tempMatrix.copyPosition(hips.matrix);
+		hips.applyMatrix(new THREE.Matrix4().getInverse(tempMatrix));
+		hips.applyMatrix(r);
+		hips.applyMatrix(tempMatrix);
+
+		leftLeg.applyMatrix(r1);
+		rightLeg.applyMatrix(r2);
+
+		camera.lookAt(0, 0, 0);
+
+		renderer.render(scene, camera);
+           
+    }
+      </script>
+  </body>
+</html>

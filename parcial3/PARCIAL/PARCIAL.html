@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Escenario</title>
+	<style>
+            html, body { margin: 0; padding: 0; overflow: hidden; }
+        #info {
+				color: #fff;	position: absolute;		top: 10px;		width: 100%;		text-align: center;		z-index: 100;		display:block;
+			}
+            
+        </style>
+  </head>
+    
+  <body>
+      <div id="info">
+			<a  rel="noopener">PARCIAL 3erCORTE</a><br />
+          <a  rel="noopener">Usar flecha a y d para mover</a><br />
+          <a  rel="noopener">Santiago Forero Zapta - U1202071</a><br />
+        
+		</div>    
+	
+    <script src="js/three.js"></script>
+    <script src="js/OrbitControls.js"></script>
+     <script>
+    
+   
+         var scene, aspect, camera, renderer, controls;
+		var startTime = Date.now();			
+		var geometry;  
+        var clock = new THREE.Clock();
+  var upArrow = false;
+		var downArrow = false;
+		var object;
+         var lightHelper1, lightHelper2, lightHelper3;
+        
+		init();
+		animate();
+	
+		function init(){
+//INICIALIZACIÓN DE LA ESCENA
+         scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xEFFBFB );
+			aspect = window.innerWidth / window.innerHeight;
+			camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
+			renderer = new THREE.WebGLRenderer({antialias: true});
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+            // controls.minPolarAngle = Math.PI / 4;
+            controls.minDistance = 10.0;
+            
+            //controls.maxDistance = 31.5;
+			var size = 100;
+			var arrowSize = 1;
+			var divisions = size;
+			var origin = new THREE.Vector3( 0, 0, 0 );
+			var x = new THREE.Vector3( 1, 0, 0 );
+			var y = new THREE.Vector3( 0, 1, 0 );
+		  	var z = new THREE.Vector3( 0, 0, 1 );
+			var color1 = new THREE.Color( 0xFFFFFF );
+		  	var color2 = new THREE.Color( 0x333333 );
+		  	var colorR = new THREE.Color( 0xAA3333 );
+		  	var colorG = new THREE.Color( 0x33AA33 );
+		  	var colorB = new THREE.Color( 0x333366 );
+		  
+		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
+		  	var axesHelper = new THREE.AxesHelper( 10 );
+		  	var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
+		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
+		  	var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
+            
+            //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
+            gridHelperXY.rotateOnWorldAxis ( x, THREE.Math.degToRad(90) );
+            gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+            gridHelperYZ.rotateOnWorldAxis ( z, THREE.Math.degToRad(90) );
+            
+            //CREAR LAS FLECHAS QUE INDICAN LOS EJES DE COORDENADAS 3D
+            var arrowX = new THREE.ArrowHelper( x, origin, arrowSize, colorR );
+            var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
+            var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
+            
+            var onKeyDown = function ( event ) {
+				switch ( event.keyCode ) {
+					case 65: // TRASLADAR EN DIRECCION POSITIVA
+						upArrow = true;
+						break;
+					case 68: // TRASLADAR EN DIRECCION NEGATIVA
+						downArrow = true;
+						break;
+				}
+			};	  
+		  			
+			var onKeyUp = function ( event ) {
+				switch ( event.keyCode ) {
+					case 65: // TRASLADAR EN DIRECCION POSITIVA
+						upArrow = false;
+						break;
+					case 68: // TRASLADAR EN DIRECCION NEGATIVA
+						downArrow = false;
+						break;
+				}
+			};	  	
+			
+			document.addEventListener( 'keydown', onKeyDown, false );
+			document.addEventListener( 'keyup', onKeyUp, false );
+			
+            
+            var colorRd = new THREE.Color( 0xAA6666 );
+		  	var colorGd = new THREE.Color( 0x66AA66 );
+		  	var colorBd = new THREE.Color( 0x6666AA );
+       
+            
+            //CREAR ILUMINACIÓN
+            var ambient = new THREE.AmbientLight( 0xffffff, 0.1 );
+            scene.add( ambient );
+            
+            var pointLight = new THREE.PointLight( 0xffffff, 1, 100 );
+            pointLight.position.set( 5, 5, -5 );
+            //scene.add( pointLight );
+
+var  spotLight1  =  new THREE.SpotLight (  0xFF7F00,2  ) ;
+var  spotLight2  =  new THREE.SpotLight (  0x00FF7F ,2 ) ;
+var  spotLight3  = new THREE.SpotLight (  0x7F00FF ,2 ) ;
+var  spotLight4  = new THREE.SpotLight (  0x7F0000 ,2) ;
+            spotLight1.angle = Math.PI / 9;
+            spotLight2.angle = Math.PI / 9;
+            spotLight3.angle = Math.PI / 9;
+            spotLight4.angle = Math.PI / 9;
+            
+            spotLight1.position.set( 18, 15, 0 );
+            spotLight1.distance = 55;
+				spotLight2.position.set( -18, 15, 0 );
+            spotLight2.distance = 35;
+				spotLight3.position.set( 18, 15, -20 );
+            spotLight3.distance = 55;
+            spotLight4.position.set( - 18, 15, -20 );
+            spotLight4.distance = 55;
+
+				light = new THREE.SpotLightHelper( spotLight1 );
+				lightHelper2 = new THREE.SpotLightHelper( spotLight2 );
+				lightHelper3 = new THREE.SpotLightHelper( spotLight3 );
+            lightHelper4 = new THREE.SpotLightHelper( spotLight4 );
+            scene.add( spotLight1, spotLight2, spotLight3 , spotLight4 );
+				scene.add( light, lightHelper2, lightHelper3, lightHelper4 );
+           
+           
+          
+             var sphere = new THREE.SphereBufferGeometry( 0.2, 8, 8 );
+            
+            light1 = new THREE.PointLight( 0xff0040, 0.51, 50 );
+				light1.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0xff0040 } ) ) );
+         
+				scene.add( light1 );
+
+				light2 = new THREE.PointLight( 0x0040ff, 0.51, 50 );
+				light2.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0x0040ff } ) ) );
+				scene.add( light2 );
+
+				light3 = new THREE.PointLight( 0x80ff80, 0.51, 50 );
+				light3.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0x80ff80 } ) ) );
+				scene.add( light3 );
+
+				light4 = new THREE.PointLight( 0xffaa00, 0.51, 50 );
+				light4.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0xffaa00 } ) ) );
+				scene.add( light4 );
+            light5 = new THREE.PointLight( 0xff0040, 0.51, 50 );
+				light5.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0xff0040 } ) ) );
+         
+				scene.add( light5 );
+
+				light6 = new THREE.PointLight( 0x0040ff, 0.51, 50 );
+				light6.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0x0040ff } ) ) );
+				scene.add( light6 );
+
+				light7 = new THREE.PointLight( 0x80ff80, 0.51, 50 );
+				light7.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0x80ff80 } ) ) );
+				scene.add( light7 );
+
+				light8 = new THREE.PointLight( 0xffaa00, 0.51, 50 );
+				light8.add( new THREE.Mesh( sphere, new THREE.MeshPhongMaterial( { color: 0xffaa00 } ) ) );
+				scene.add( light8 );
+            
+            
+            
+//OBJETOS  
+            //materiales
+            
+             var base = new THREE.TextureLoader().load( 'texture/escenario.png' );
+             var cortinas = new THREE.TextureLoader().load( 'texture/cortinas.png' );
+            var tapete = new THREE.TextureLoader().load( 'texture/alfombra.jpg' );
+            var domo1 = new THREE.TextureLoader().load( 'texture/Carbon.png' );
+            var domo2 = new THREE.TextureLoader().load( 'texture/Carbon_Normal.png' );
+            cortinas.wrapS = THREE.RepeatWrapping;
+                cortinas.wrapT = THREE.RepeatWrapping;
+                cortinas.repeat.set(5, 1);
+            domo1.wrapS = THREE.RepeatWrapping;
+                domo1.wrapT = THREE.RepeatWrapping;
+                domo1.repeat.set(25, 25);
+            var materialteatro =  new THREE.MeshStandardMaterial( { 
+                    color: 0xffffff,
+                    map: base,            
+                    transparent: true,
+                side:THREE.DoubleSide,
+				} );
+            var materialdomo =  new THREE.MeshPhongMaterial( { 
+                    color: 0xffffff,
+                    map: domo1,    
+                normalMap:domo2 ,
+                    transparent: false,
+                side:THREE.DoubleSide,
+				} );
+             var materialtapete =  new THREE.MeshPhongMaterial( { 
+                    color: 0x19070B,
+                    map: tapete,  
+                 side:THREE.DoubleSide,
+                    
+				} );
+             var cortina =  new THREE.MeshLambertMaterial( { 
+                    color: 0xDF013A,
+                    map: cortinas,    
+                 transparent: true,
+                 side:THREE.DoubleSide,
+                				} );
+            
+        //CUADRADOS        
+            var boxGeometry = new THREE.BoxGeometry(1,2,1);
+            var material1 = new THREE.MeshPhongMaterial( { color: 0xAA3333, metalness: 0.5, roughness: 0.1,side:THREE.DoubleSide } );
+            var material2 = new THREE.MeshPhongMaterial( { color: 0x33AA33, metalness: 0.5, roughness: 0.1 } );
+            var material4 = new THREE.MeshPhongMaterial( { color: 0xF2F2F2, metalness: 1,shininess :70 } );
+            var material5 = new THREE.MeshLambertMaterial( { color: 0X000000, metalness: 1,shininess :70,side:THREE.DoubleSide } );
+            var material3 = new THREE.MeshPhongMaterial( { color: 0x424242, metalness: 1, roughness: 1,side:THREE.DoubleSide, wireframe: true,shininess :70  } );
+       
+//DOMO            
+var points = [];
+for ( var i = 0; i < 9.5; i ++ ) {
+	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 57 + 1, ( i - 8 ) * 8 ) );
+}
+var domo = new THREE.LatheGeometry( points, 30 , 1.35 , 5.6 );
+var lathe = new THREE.Mesh( domo, materialdomo );
+scene.add( lathe );  
+lathe.rotation.x=Math.PI/1;   
+            lathe.rotation.y=Math.PI/1.6;   
+            lathe.position.y=2;   lathe.position.z=-10;   
+            
+            //SILLAS      
+
+particulas = new THREE.Object3D();
+scene.add( particulas );
+geom = new THREE.BoxGeometry( 1, 2, 0.5 );
+            
+for(var i = 0; i < 20; i+=0.41 ) {
+    for(var j = 0; j < 18; j+=1.5 ) {
+  
+  var  mat = new THREE.MeshPhongMaterial();
+      var  cube = new THREE.Mesh( geom, material1 );
+    cube.translateX((j+25)*Math.cos(1+i));
+     cube.translateZ((j+25)*Math.sin(1+i));
+        cube.position.y=(j/4 )+0.5;    
+    particulas.add( cube );
+}
+}
+            
+particulas2 = new THREE.Object3D();
+scene.add( particulas2 );
+geom2 = new THREE.BoxGeometry( 1, 1, 0.7 );
+            
+for(var i = 0; i < 20; i+=0.41 ) {
+    
+    for(var j = 0; j <18 ; j+=1.5 ) {
+      var  cube2 = new THREE.Mesh( geom2, material2 );
+   cube2.translateX(((j+25)*Math.cos(1+i))+1);
+        cube2.translateZ(((j+25)*Math.sin(1+i)+0));
+         cube2.position.y=(j/4 )+0.5;   
+    particulas2.add( cube2 );
+}
+}
+  particulas.add(particulas2);          
+ particulas.rotation.y=Math.PI/2;
+  particulas.position.z-=10;  
+//TaARIMA
+            var cilindro = new THREE.CylinderGeometry( 20,20, 3, 20 );
+            var tarima = new THREE.Mesh( cilindro, materialtapete );
+            scene.add( tarima );
+            tarima.position.z=-10;
+            var torus = new THREE.TorusGeometry( 19.5, 0.6, 8, 19,5.3 );
+            var bordetarima = new THREE.Mesh( torus, material4 );
+          scene.add( bordetarima );
+           bordetarima.rotation.x=Math.PI/2;    bordetarima.position.z=-10; bordetarima.position.y=2; bordetarima.rotation.z=Math.PI/0.6;  
+  //Escenario
+            var plano = new THREE.PlaneGeometry( 20, 15, 1,1 );
+             var escenario = new THREE.Mesh( plano, materialteatro  );
+           scene.add( escenario );
+            var escenario2 = new THREE.Mesh(new THREE.PlaneGeometry( 40, 14.5, 1,1 ) , cortina  );
+           scene.add( escenario2 );
+             escenario.position.z=-30;escenario.position.y=7.5;
+            escenario2.position.z=-30.1;escenario2.position.y=7.5;
+            var puente = new THREE.Mesh( new THREE.BoxGeometry(19,3.01,10) ,materialtapete );
+            scene.add(puente);
+            puente.position.z=-25;
+    //TUBOS ILUMINACION
+            var cylindro = new THREE.CylinderGeometry( 0.5, 0.5, 15, 3,8,true );
+            var tubo = new THREE.Mesh( cylindro, material3 );
+            scene.add( tubo );        
+            tubo.position.y=7.5; tubo.position.x=18;
+            var tubo2=tubo.clone();
+            tubo2.position.y=7.5; tubo2.position.x=-18;
+            scene.add(tubo2);
+               var tubo3=tubo.clone();
+            tubo3.position.y=7.5; tubo3.position.z=-20;tubo3.position.x=-18;
+            scene.add(tubo3);
+               var tubo4=tubo.clone();
+            tubo4.position.y=7.5; tubo4.position.z=-20;
+            scene.add(tubo4);
+    //Piso
+            var circulo = new THREE.CircleGeometry( 80, 12 );
+var piso = new THREE.Mesh( circulo, materialdomo );
+scene.add( piso);
+            piso.rotation.x=Math.PI/2;  
+            piso.position.z=-10;  
+    //PERSONA CON LUZ DE SEGUIMIENTO
+            
+            var pointLight = new THREE.PointLight( 0xffffff, 1, 30 );
+pointLight.position.set( 0, 10, 0 );
+scene.add( pointLight );
+
+var sphereSize = 1;
+var pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
+scene.add( pointLightHelper );
+            
+         var geometry = new THREE.BoxGeometry( 1, 12, 1 );
+			for ( var i = 0; i < geometry.faces.length; i ++ ) {
+				switch(i){
+					case 0: case 1: geometry.faces[ i ].color = colorRd; break;
+					case 2: case 3: geometry.faces[ i ].color = colorRd; break;
+					case 4: case 5: geometry.faces[ i ].color = colorGd; break;
+					case 6: case 7: geometry.faces[ i ].color = colorGd; break;
+					case 8: case 9: geometry.faces[ i ].color = colorBd; break;
+					case 10: case 11: geometry.faces[ i ].color = colorBd; break;
+				}				
+			}
+			//CREAR LOS MATERIALES
+            var material = new THREE.MeshPhongMaterial( { color: color1, vertexColors: THREE.FaceColors } );
+			//CREAR LOS OBJETOS
+			object  = new THREE.Mesh( geometry, material );
+            object.add(pointLight);
+                 object.add(spotLight1);
+            scene.add( object ); 
+            
+            
+            camera.position.x=5;
+            camera.position.y = 22;	 
+		  	camera.position.z = 41;			
+}
+    function animate() {
+        requestAnimationFrame( animate );
+        controls.update(); 
+        render();
+    }
+    function render(){
+         var time = Date.now() * 0.0005;
+        var dtime = Date.now()-startTime;
+                light1.position.x = Math.sin( time * 0.7 ) * 10;
+				light1.position.y = Math.cos( time * 0.75 ) * 10;
+				light1.position.z = Math.cos( time * 0.73 ) * 10;
+				light2.position.x = Math.cos( time * 0.73 ) * 10;
+				light2.position.y = Math.sin( time * 0.75 ) * 10;
+				light2.position.z = Math.sin( time * 0.77 ) * 10;
+				light3.position.x = Math.sin( time * 0.77 ) * 10;
+				light3.position.y = Math.cos( time * 0.73 ) * 10;
+				light3.position.z = Math.sin( time * 0.75 ) * 10;
+				light4.position.x = Math.sin( time * 0.3 ) * 15;
+				light4.position.y = Math.cos( time * 0.7 ) * 15;
+				light4.position.z = Math.sin( time * 0.5 ) * 15;
+			    light5.position.x = Math.sin( time * 0.3 ) * 15;
+				light5.position.y = Math.cos( time * 0.7 ) * 15;
+				light5.position.z = Math.cos( time * 0.5 ) * 10;
+				light6.position.x = Math.cos( time * 0.53 ) * 15;
+				light6.position.y = Math.sin( time * 0.55 ) * 15;
+				light6.position.z = Math.sin( time * 0.57 ) * 10;
+				light7.position.x = Math.sin( time * 0.47 ) * 15;
+				light7.position.y = Math.cos( time * 0.43 ) * 15;
+				light7.position.z = Math.sin( time * 0.45 ) * 15;
+				light8.position.x = Math.sin( time * 0.63 ) * 15;
+				light8.position.y = Math.cos( time * 0.67 ) * 15;
+				light8.position.z = Math.sin( time * 0.65 ) * 15;
+      var tx=0, ty=0, tz=0;
+		if(upArrow) {
+			tz=(0.5);
+		}tz
+		if(downArrow) {
+			tz=(-0.5);
+		}
+		//MATRIZ DE TRASLACIÓN
+		var t = new THREE.Matrix4();		//Crear la matriz de traslación
+		t.set( 	1, 0, 0, (tx),
+				0, 1, 0, (ty), 
+				0, 0, 1, (tz),
+				0, 0, 0, 1	);
+
+		object.applyMatrix(t);			//Aplicar la matriz de traslación al objeto				
+		object.elementsNeedUpdate = true;
+        renderer.render( scene, camera );
+    
+    }
+    </script>
+  </body>
+</html>
